@@ -15,6 +15,7 @@ function getCurrentDate() {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const currentDate = getCurrentDate();
     if (request.action === "resetTimer") {
+        stopTimer()
         let saveData = {};
         saveData[currentDate] = 0;
         console.log(saveData)
@@ -41,9 +42,12 @@ function startTimer() {
             chrome.storage.local.set(saveData);
 
             if (currentTabYoutube==true && firstNotify==false) {
-                firstNotify=true
                 notificationInterval=0
                 if (dailyLimit && newElapsedTime >= dailyLimit) {
+                    firstNotify=true
+                    console.log("notifications created")
+                    console.log(`${newElapsedTime} >= ${dailyLimit}`)
+
                 chrome.notifications.create({
                     type: "basic",
                     iconUrl: "icon.png", // Use your extension icon
@@ -55,7 +59,7 @@ function startTimer() {
             }
            
             notificationInterval+=1
-            if (notificationInterval==NOTIFICATIONINTERVAL && firstNotify==true) {
+            if (notificationInterval>NOTIFICATIONINTERVAL && firstNotify==true) {
                 firstNotify=false
                 notificationInterval=0
             }

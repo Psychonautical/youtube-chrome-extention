@@ -46,9 +46,13 @@ document.addEventListener("DOMContentLoaded", () => {
             let totalSeconds = data[currentDate] ? Math.round(data[currentDate] / 1000) : 0;
             let minutes = Math.floor(totalSeconds / 60);
             let seconds = totalSeconds % 60;
+            let dailyLimit = data.dailyLimit
 
             timeDisplay.innerText = `YouTube Time (${currentDate}): ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
+            if (dailyLimit<minutes) {   
+                percentage=Math.round((1-minutes/dailyLimit)*-100)    
+                limitExceeded.innerText =`${percentage} % over`
+            }
         });
 });
 
