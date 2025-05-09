@@ -1,17 +1,24 @@
 let startTime = null;
-let elapsedTime = 0;
 let interval = null;
+
+function getCurrentDate() {
+    const today = new Date();
+    return today.toISOString().split('T')[0];  // Format: YYYY-MM-DD
+}
 
 function startTimer() {
     startTime = Date.now();
-    
-    // Retrieve stored time so we continue from where we left off
-    chrome.storage.local.get("youtubeTime", (data) => {
-        elapsedTime = data.youtubeTime ? data.youtubeTime : 0;
+    const currentDate = getCurrentDate();
+
+    // Retrieve stored data for the current day
+    chrome.storage.local.get(currentDate, (data) => {
+        let elapsedTime = data[currentDate] ? data[currentDate] : 0;
 
         interval = setInterval(() => {
             const newElapsedTime = elapsedTime + (Date.now() - startTime);
-            chrome.storage.local.set({ youtubeTime: newElapsedTime });
+            let saveData = {};
+            saveData[currentDate] = newElapsedTime;
+            chrome.storage.local.set(saveData);
         }, 1000);
     });
 }
@@ -21,6 +28,7 @@ function stopTimer() {
         clearInterval(interval);
         interval = null;
     }
+
 }
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
