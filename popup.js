@@ -1,9 +1,13 @@
-
+function getCurrentDate() {
+    const today = new Date();
+    return today.toISOString().split('T')[0];  // Format: YYYY-MM-DD
+}
 
 document.addEventListener("DOMContentLoaded", () => {
-    const currentDate = new Date().toISOString().split('T')[0];  // YYYY-MM-DD
+    const currentDate = getCurrentDate();  // YYYY-MM-DD
     const limitInput = document.getElementById("limitInput");
     const setLimitButton = document.getElementById("setLimit");
+    const resetCounterButton = document.getElementById("resetCounter");
 
 
     // Load saved limit when the popup opens
@@ -20,6 +24,18 @@ document.addEventListener("DOMContentLoaded", () => {
             alert("Limit saved!");
         } else {
             alert("Please enter a valid limit.");
+        }
+    });
+
+     resetCounterButton.addEventListener("click", () => {
+       if (confirm("Are you sure you want to proceed?")) {
+            chrome.runtime.sendMessage({ action: "resetTimer" }, (response) => {
+                 console.log(response.result);
+            });
+            console.log("User confirmed!");
+
+        } else {
+            console.log("User canceled!");
         }
     });
 
