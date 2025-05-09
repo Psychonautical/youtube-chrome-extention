@@ -6,7 +6,7 @@
     "description": "Tracks time spent on YouTube.",
     "permissions": ["tabs", "storage"],
     "background": {
-      "service_worker": "background_2.js"
+      "service_worker": "background.js"
     }, "action": {
         "default_popup": "popup.html",
         "default_icon": "icon.png"

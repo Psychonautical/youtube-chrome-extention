@@ -4,17 +4,22 @@ let interval = null;
 
 function startTimer() {
     startTime = Date.now();
-    interval = setInterval(() => {
-        elapsedTime = Date.now() - startTime;
-        chrome.storage.local.set({ youtubeTime: elapsedTime });
-    }, 1000);
+    
+    // Retrieve stored time so we continue from where we left off
+    chrome.storage.local.get("youtubeTime", (data) => {
+        elapsedTime = data.youtubeTime ? data.youtubeTime : 0;
+
+        interval = setInterval(() => {
+            const newElapsedTime = elapsedTime + (Date.now() - startTime);
+            chrome.storage.local.set({ youtubeTime: newElapsedTime });
+        }, 1000);
+    });
 }
 
 function stopTimer() {
     if (interval) {
         clearInterval(interval);
         interval = null;
-        chrome.storage.local.set({ youtubeTime: elapsedTime });
     }
 }
 
