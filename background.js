@@ -3,6 +3,8 @@ let interval = null;
 let notificationCountdownSeconds=600
 let currentTabYoutube=false
 let firstNotify=false
+let notificationInterval=0
+const NOTIFICATIONINTERVAL=300
 function getCurrentDate() {
     const today = new Date();
     return today.toISOString().split('T')[0];  // Format: YYYY-MM-DD
@@ -24,6 +26,7 @@ function startTimer() {
 
             if (currentTabYoutube==true && firstNotify==false) {
                 firstNotify=true
+                notificationInterval=0
                 if (dailyLimit && newElapsedTime >= dailyLimit) {
                 chrome.notifications.create({
                     type: "basic",
@@ -35,7 +38,11 @@ function startTimer() {
             }
             }
            
-            
+            notificationInterval+=1
+            if (notificationInterval==NOTIFICATIONINTERVAL && firstNotify==true) {
+                firstNotify=false
+                notificationInterval=0
+            }
         }, 1000);
     });
 }
