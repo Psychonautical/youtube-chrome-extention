@@ -5,8 +5,7 @@ let currentTabYoutube=false
 let firstNotify=false
 let notificationInterval=0
 const NOTIFICATIONINTERVAL=300
-
-
+let isResetInProgress=false
 function getCurrentDate() {
     const today = new Date();
     return today.toISOString().split('T')[0];  // Format: YYYY-MM-DD
@@ -15,12 +14,14 @@ function getCurrentDate() {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const currentDate = getCurrentDate();
     if (request.action === "resetTimer") {
+        isResetInProgress=true
         stopTimer()
         let saveData = {};
         saveData[currentDate] = 0;
         console.log(saveData)
         chrome.storage.local.set(saveData);
         console.log("resetTimer executed")
+        isResetInProgress=false
         sendResponse({ result: "Function executed!" });
     }
 });
@@ -39,7 +40,9 @@ function startTimer() {
             let saveData = {};
             saveData[currentDate] = newElapsedTime;
             console.log(saveData)
-            chrome.storage.local.set(saveData);
+            if (!isResetInProgress) {
+                chrome.storage.local.set(saveData);
+            }
 
             if (currentTabYoutube==true && firstNotify==false) {
                 notificationInterval=0
