@@ -30,12 +30,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 function startTimer() {
     startTime = Date.now();
     const currentDate = getCurrentDate();
-
+    console.log("startTimer function")
     // Retrieve stored data for the current day
     chrome.storage.local.get([currentDate, "dailyLimit"], (data) => {
         let elapsedTime = data[currentDate] ? data[currentDate] : 0;
         let dailyLimit = data.dailyLimit ? data.dailyLimit * 60000 : null; // Convert minutes to milliseconds
-        interval = setInterval(() => {
+
+        if (interval == null) {
+            interval = setInterval(() => {
             const newElapsedTime = elapsedTime + (Date.now() - startTime);
             let saveData = {};
             saveData[currentDate] = newElapsedTime;
@@ -67,6 +69,8 @@ function startTimer() {
                 notificationInterval=0
             }
         }, 1000);
+        }
+       
     });
 }
 
@@ -82,9 +86,13 @@ function stopTimer() {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (tab.url && tab.url.includes("youtube.com")) {
-        if (!interval) startTimer();
-        currentTabYoutube=true;
+        if (interval==null){
+            console.log("startTimer")
+            startTimer();
+            currentTabYoutube=true;
+        }           
     } else {
+        console.log("stopTimer")
         stopTimer();
         currentTabYoutube=false;
     }
@@ -93,7 +101,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 chrome.tabs.onActivated.addListener((activeInfo) => {
     chrome.tabs.get(activeInfo.tabId, (tab) => {
         if (tab.url && tab.url.includes("youtube.com")) {
-            if (!interval) startTimer();
+            if (interval==null) startTimer();
             currentTabYoutube=true;
         } else {
             stopTimer();
