@@ -26,6 +26,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
 });
 
+function sendTimer(timerData){
+    let totalSeconds = timerData ? Math.round(timerData / 1000) : 0;
+    chrome.runtime.sendMessage({ action: "timer", count:totalSeconds }, (response) => {
+                 console.log(response.result);
+    });
+}
 
 function startTimer() {
     startTime = Date.now();
@@ -39,6 +45,7 @@ function startTimer() {
         if (interval == null) {
             interval = setInterval(() => {
             const newElapsedTime = elapsedTime + (Date.now() - startTime);
+            sendTimer(newElapsedTime)
             let saveData = {};
             saveData[currentDate] = newElapsedTime;
             console.log(saveData)
@@ -78,6 +85,7 @@ function startTimer() {
 
 function stopTimer() {
     if (interval) {
+        console.log("stopTimer")
         clearInterval(interval);
         interval = null;
     }
