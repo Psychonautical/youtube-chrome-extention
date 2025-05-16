@@ -1,4 +1,4 @@
-let startTime = null;
+let countSeconds = 0;
 let interval = null;
 let notificationCountdownSeconds=600
 let currentTabYoutube=false
@@ -32,11 +32,24 @@ function sendTimer(timerData){
                  console.log(response.result);
     });
 }
+let isPlayingReturn=false;
+function isPlaying(){
+    return_value=false
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    if (tabs.length > 0 && tabs[0].audible) {
+        console.log("isPlaying true")
+        isPlayingReturn = true
+    } else {
+        console.log("isPlaying false")
+        isPlayingReturn = false
+    }
+});
+}
 
 function startTimer() {
-    startTime = Date.now();
     const currentDate = getCurrentDate();
     console.log("startTimer function")
+
     // Retrieve stored data for the current day
     chrome.storage.local.get([currentDate, "dailyLimit"], (data) => {
         let elapsedTime = data[currentDate] ? data[currentDate] : 0;
@@ -44,14 +57,19 @@ function startTimer() {
 
         if (interval == null) {
             interval = setInterval(() => {
-            const newElapsedTime = elapsedTime + (Date.now() - startTime);
-            sendTimer(newElapsedTime)
-            let saveData = {};
-            saveData[currentDate] = newElapsedTime;
-            console.log(saveData)
-            if (!isResetInProgress) {
+            isPlaying()
+            if (isPlayingReturn==true) {
+                countSeconds=countSeconds+1
+                const newElapsedTime = elapsedTime + (countSeconds*1000);
+                sendTimer(newElapsedTime)
+                let saveData = {};
+                saveData[currentDate] = newElapsedTime;
+                console.log(saveData)
+                if (!isResetInProgress) {
                 chrome.storage.local.set(saveData);
-            }
+             }
+            
+          
 
             if (currentTabYoutube==true && firstNotify==false) {
                 notificationInterval=0
@@ -75,6 +93,8 @@ function startTimer() {
                 firstNotify=false
                 notificationInterval=0
             }
+            }
+           
         }, 1000);
         }
        
@@ -112,6 +132,7 @@ chrome.tabs.onActivated.addListener((activeInfo) => {
             if (interval==null) startTimer();
             currentTabYoutube=true;
         } else {
+            console.log("stopTimer")
             stopTimer();
             currentTabYoutube=false;
         }
