@@ -1,6 +1,5 @@
 let countSeconds = 0;
 let interval = null;
-let notificationCountdownSeconds=600
 let currentTabYoutube=false
 let firstNotify=false
 let notificationInterval=0
@@ -46,6 +45,17 @@ function isPlaying(){
 });
 }
 
+
+
+let dailyLimit=0
+function getDailyLimit(){
+     const currentDate = getCurrentDate();
+     chrome.storage.local.get([currentDate, "dailyLimit"], (data) => {
+        // let elapsedTime = data[currentDate] ? data[currentDate] : 0;
+        dailyLimit = data.dailyLimit ? data.dailyLimit * 60000 : null; // Convert minutes to milliseconds
+     })
+}
+
 function startTimer() {
     const currentDate = getCurrentDate();
     console.log("startTimer function")
@@ -53,10 +63,11 @@ function startTimer() {
     // Retrieve stored data for the current day
     chrome.storage.local.get([currentDate, "dailyLimit"], (data) => {
         let elapsedTime = data[currentDate] ? data[currentDate] : 0;
-        let dailyLimit = data.dailyLimit ? data.dailyLimit * 60000 : null; // Convert minutes to milliseconds
+        dailyLimit = data.dailyLimit ? data.dailyLimit * 60000 : null; // Convert minutes to milliseconds
 
         if (interval == null) {
             interval = setInterval(() => {
+            getDailyLimit()
             isPlaying()
             if (isPlayingReturn==true) {
                 countSeconds=countSeconds+1
