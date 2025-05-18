@@ -55,14 +55,14 @@ function getDailyLimit(){
         dailyLimit = data.dailyLimit ? data.dailyLimit * 60000 : null; // Convert minutes to milliseconds
      })
 }
-
+let elapsedTime;
 function startTimer() {
     const currentDate = getCurrentDate();
     console.log("startTimer function")
 
     // Retrieve stored data for the current day
     chrome.storage.local.get([currentDate, "dailyLimit"], (data) => {
-        let elapsedTime = data[currentDate] ? data[currentDate] : 0;
+        elapsedTime = data[currentDate] ? data[currentDate] : 0;
         dailyLimit = data.dailyLimit ? data.dailyLimit * 60000 : null; // Convert minutes to milliseconds
 
         if (interval == null) {
